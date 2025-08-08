@@ -1,23 +1,43 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar/page";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Head from "next/head";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";;
+import gsap from "gsap";
 
 const Scene1 = dynamic(() => import("@/components/Scene/scene1"), { ssr: false });
 
 export default function Home() {
   const { isSignedIn } = useUser();
-  const router = useRouter();
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
+  const subtitleRef = useRef<HTMLParagraphElement | null>(null);
+  const ctaRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (isSignedIn) {
-      router.push("/dashboard");
-    }
-  }, [isSignedIn, router]);
+    // Entrance animations
+    const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const ctaButtons = Array.from(ctaRef.current?.children ?? []) as HTMLElement[];
+    timeline
+      .fromTo(
+        titleRef.current,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8 }
+      )
+      .fromTo(
+        subtitleRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7 },
+        "-=0.3"
+      )
+      .from(
+        ctaButtons,
+        { y: 10, opacity: 0, duration: 0.6, stagger: 0.1 },
+        "-=0.2"
+      );
+  }, []);
 
   return (
     <>
@@ -31,19 +51,21 @@ export default function Home() {
 
       <Navbar />
 
-      <main className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
-        <h2 className="text-2xl py-1 px-2 mb-4">GENZIgYm</h2>
-        <p className="mb-8 text-center max-w-md">
-          Welcome to the best gym management website which is fast, solves real-time problems, and helps manage gyms and customers.
+      <main className="flex flex-col items-center justify-center min-h-screen bg-black text-white px-4">
+        <h1 ref={titleRef} className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600">
+          Train Smarter. Manage Faster.
+        </h1>
+        <p ref={subtitleRef} className="mb-8 text-center max-w-2xl text-gray-300">
+          GENZIgYm is your modern, lightning-fast gym management platform—built to streamline memberships, schedules, and performance insights so you can focus on results.
         </p>
-        <div className="flex gap-4">
-          <Link href={"/pages/auth/"}>
-            <button className="bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-2 rounded-full hover:scale-105 active:scale-95 transition-transform">
-              Get Started
+        <div ref={ctaRef} className="flex gap-4">
+          <Link href={isSignedIn ? "/pages/dashboard" : "/pages/auth/"}>
+            <button className="bg-gradient-to-r from-green-500 to-emerald-700 text-white px-6 py-2 rounded-full hover:shadow-[0_0_20px_rgba(16,185,129,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all">
+              {isSignedIn ? "Go to Dashboard" : "Get Started"}
             </button>
           </Link>
           <Link href={"/info"}>
-            <button className="border border-gray-400 px-6 py-2 rounded-full hover:bg-gray-700 transition">
+            <button className="border border-gray-600 px-6 py-2 rounded-full text-gray-200 hover:border-gray-300 hover:bg-gray-800/60 transition-all">
               Learn More
             </button>
           </Link>
