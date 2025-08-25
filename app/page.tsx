@@ -7,8 +7,8 @@ import Link from "next/link";
 import Head from "next/head";
 import { useUser } from "@clerk/nextjs";
 import gsap from "gsap";
+import Scene1 from '@/components/Scene/scene1'
 
-const Scene1 = dynamic(() => import("@/components/Scene/scene1"), { ssr: false });
 
 export default function Home() {
   const { isSignedIn } = useUser();
